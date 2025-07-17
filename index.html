@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="data:," />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TODO-List</title>
+  <link rel="stylesheet" href="src/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+  <div id="modal-overlay"></div>
+  <div id="header">
+    <h1>TODO-List Program</h1>
+  </div>
+  <div id="form-filling-block">
+    <form id="new-task-form">
+      <!-- close button -->
+      <button class="close-button" type="reset"><i class="fa-solid fa-x"></i></button>
+      <label class="form-label">Enter task title:</label>
+      <!-- title input -->
+      <input type="text" id="new-task-title" placeholder='Defaults to "Task"' autocomplete="off">
+      <label class="form-label">Enter task description:</label>
+      <!-- description input-->
+      <input type="text" id="new-task-description" placeholder='Type in your tasks' autocomplete="off">
+      <div id="description-error" class="error-message"></div>
+      <!-- submit button-->
+      <button class="submit-button" type="submit">Add Task</button>
+    </form>
+  </div>
+  <button class="add-button" type="button"><i class="fa-solid fa-plus"></i></button>
+  <ul id="todo-list"></ul>
+
+  <div id="toast-container"></div>
+  <script type="module" src="/src/main.ts"></script>
+</body>
+
+</html>
