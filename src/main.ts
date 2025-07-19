@@ -8,9 +8,11 @@ type Task = {
 }
 const list = document.querySelector<HTMLUListElement>("#todo-list")
 const formBlock = document.querySelector<HTMLDivElement>("#form-filling-block")
+const clearButton = document.querySelector<HTMLButtonElement>("#clear-button")
 const form = document.getElementById("new-task-form") as HTMLFormElement | null
 const titleInput = document.querySelector<HTMLInputElement>("#new-task-title")
 const descriptionInput = document.querySelector<HTMLInputElement>("#new-task-description")
+const descError = document.getElementById("description-error") as HTMLDivElement
 const closeButton = document.querySelector<HTMLButtonElement>(".close-button")
 const addButton = document.querySelector<HTMLButtonElement>(".add-button")
 const modalOverlay = document.querySelector<HTMLDivElement>("#modal-overlay")
@@ -20,16 +22,60 @@ const tasks: Task[] = loadTasks()
 
 tasks.forEach(addListItem)
 
-//showing the form block
-addButton?.addEventListener("click", () => {
-  showFormBlock()
-});
+clearButton?.addEventListener("click", (e) => {
+  e.stopPropagation()
+  const confirmationBlock = document.createElement("div")
+  confirmationBlock.id = "confirmation-block"
 
-closeButton?.addEventListener("click", () => {
-  hideFormBlock()
+  const confirmationTxt = document.createElement("span")
+  confirmationTxt.textContent = "Are you sure you want to clear all tasks?"
+  confirmationTxt.classList.add("confirmation-text")
+
+  const confirmButton = document.createElement("button")
+  confirmButton.textContent = "Confirm"
+  confirmButton.classList.add("confirmation-buttons", "confirm")
+
+  const cancelButton = document.createElement("button")
+  cancelButton.textContent = "Cancel"
+  cancelButton.classList.add("confirmation-buttons", "cancel")
+
+  confirmButton.addEventListener("click", () => {
+    localStorage.clear()
+    tasks.length = 0
+    while (list?.firstChild) {
+     list.removeChild(list.firstChild);
+    }
+    saveTasks()
+    hideShownBlock(confirmationBlock)
+  })
+
+  cancelButton.addEventListener("click", () => {
+    hideShownBlock(confirmationBlock)
+  })
+  
+  confirmationBlock.append(confirmationTxt, cancelButton, confirmButton)
+  document.body.appendChild(confirmationBlock)
+  showHiddenBlock(confirmationBlock)
+})
+
+addButton?.addEventListener("click", () => {
+  showHiddenBlock(formBlock as HTMLElement)
+  titleInput?.focus()
 })
 
 
+closeButton?.addEventListener("click", () => {
+  resetForm()
+})
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const isFormVisible = formBlock?.style.display === "block";
+    if (isFormVisible) {
+      resetForm();
+    }
+  }
+});
 
 form?.addEventListener("submit", e => {
   e.preventDefault()
@@ -38,7 +84,6 @@ form?.addEventListener("submit", e => {
   const defaultTitleValue = titleInput.value.trim() === "" ? "Task" : titleInput.value.trim()
   const descValue = descriptionInput.value.trim()
 
-  const descError = document.getElementById("description-error") as HTMLDivElement
   if (!descError) return
 
   descriptionInput.addEventListener("input", () => {
@@ -71,7 +116,7 @@ form?.addEventListener("submit", e => {
   addListItem(newTask)
   titleInput.value = ""
   descriptionInput.value = ""
-  hideFormBlock()
+  hideShownBlock(formBlock as HTMLElement)
 })
 
 function addListItem(task: Task) {
@@ -82,6 +127,13 @@ function addListItem(task: Task) {
   const timeLabel = document.createElement("div")
   const deleteButton = document.createElement("button")
   const trashIcon = document.createElement("i")
+  const editButton = document.createElement("button")
+  const editIcon = document.createElement("i")
+  const checkButton = document.createElement("button")
+  const checkIcon = document.createElement("i")
+  const discardButton = document.createElement("button")
+  const discardIcon = document.createElement("i")
+  const editInput = document.createElement("input")
 
   titleLabel.textContent = task.title
   descLabel.textContent = task.description
@@ -99,6 +151,22 @@ function addListItem(task: Task) {
   timeLabel.textContent = `Created: ${formattedTime}`
   timeLabel.classList.add("created-time")
 
+  editInput.className = "description-edit"
+  editInput.type = "text"
+  editInput.value = task.description
+
+  checkIcon.className = "fa-solid fa-check"
+  checkButton.className = "check-button"
+  checkButton.appendChild(checkIcon)
+
+  discardIcon.className = "fa-solid fa-xmark"
+  discardButton.className = "discard-button"
+  discardButton.appendChild(discardIcon)
+
+  editIcon.className = "fa-solid fa-pen"
+  editButton.className = "edit-button"
+  editButton.appendChild(editIcon)
+
   trashIcon.className = "fa-solid fa-trash"
   deleteButton.className = "delete-button"
   deleteButton.appendChild(trashIcon)
@@ -111,6 +179,60 @@ function addListItem(task: Task) {
     item.classList.toggle("completed", task.completed)
     saveTasks()
   })
+
+
+  editButton.addEventListener("click", (e) => {
+    e.stopPropagation()
+
+    deleteButton.style.display = "none";
+    checkbox.style.display = "none";
+    editButton.style.display = "none";
+
+    checkButton.style.display = "block"
+    discardButton.style.display = "block"
+
+    descLabel.replaceWith(editInput)
+    editInput.focus()
+
+    const confirmEdit = () => {
+      const newDesc = editInput.value.trim()
+      if(newDesc !== "") {
+        task.description = newDesc
+        saveTasks()
+        descLabel.textContent = newDesc
+        editInput.replaceWith(descLabel)
+        editInput.classList.remove("input-error")
+        resetEditUI()
+      }
+      else {
+       editInput.classList.add("input-error")
+      }
+    }
+
+    const cancelEdit = () => {
+      editInput.value = task.description.trim()
+      editInput.replaceWith(descLabel)
+      if(editInput.classList.contains("input-error")) {
+        editInput.classList.remove("input-error")
+      }
+      resetEditUI()
+      }
+
+    checkButton.onclick = (e) => {
+      e?.stopPropagation();
+      confirmEdit();
+    };
+
+    discardButton.onclick = (e) => {
+      e?.stopPropagation();
+      cancelEdit();
+    };
+
+    editInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") confirmEdit();
+      if (e.key === "Escape") cancelEdit();
+    });
+  })  
 
   deleteButton.addEventListener("click", (e) => {
     e.stopPropagation()
@@ -133,7 +255,15 @@ function addListItem(task: Task) {
     }
   })
 
-  item.append( checkbox, titleLabel, descLabel, timeLabel, deleteButton)
+  function resetEditUI() {
+    deleteButton.style.display = "block";
+    checkbox.style.display = "block";
+    editButton.style.display = "block";
+    checkButton.style.display = "none";
+    discardButton.style.display = "none";
+  }
+
+  item.append( checkbox, titleLabel, descLabel, timeLabel, checkButton, discardButton, editButton, deleteButton)
   list?.append(item)
 }
 
@@ -177,14 +307,27 @@ function showToast(task: Task) {
   }, 5000)
 }
 
-function showFormBlock() {
-  formBlock?.style.setProperty("display", "block")
+function resetForm() {
+  descriptionInput?.classList.remove("input-error");
+  if (descError) {
+    descError.textContent = "";
+    descError.style.display = "none";
+  }
+
+  titleInput!.value = "";
+  descriptionInput!.value = "";
+
+  hideShownBlock(formBlock as HTMLElement);
+}
+
+function showHiddenBlock(element: HTMLElement) {
+  element?.style.setProperty("display", "block")
   modalOverlay?.style.setProperty("display", "block")
   document.body.style.overflow = "hidden"
 }
 
-function hideFormBlock() {
-  formBlock?.style.setProperty("display", "none")
+function hideShownBlock(element: HTMLElement) {
+  element?.style.setProperty("display", "none")
   modalOverlay?.style.setProperty("display", "none")
   document.body.style.overflow = "visible"
 }
