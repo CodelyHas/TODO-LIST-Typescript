@@ -9,24 +9,38 @@ html {
   font-size: 16px;
 }
 
+
 #header {
   color: white;
-  font-size: 20px;
-  padding: 5px 0px;
+  font-size: 1rem;
+  padding: 1rem 1rem;
   width: 100%;
   margin: 0;
-  text-indent: 2%;
   background-color: dodgerblue;
   position: fixed;
   top: 0;
   left: 0;
   z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 82px; 
+  box-sizing: border-box;
+  overflow: hidden;
 }
-header h1 {
-  font-size: clamp(1.5rem, 5vw, 3rem);
+
+#header h1 {
+  font-size: clamp(1.2rem, 4vw, 2rem);
   line-height: 1.2;
   word-break: break-word;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 70%;
 }
+
 button {
   touch-action: manipulation;
 }
@@ -36,7 +50,7 @@ ul {
   margin: 2px 0 2px 0;
   padding: 0 0 0 0;
   box-sizing: border-box;
-  padding-top: 108px;
+  padding-top: 80px;
 }
 
 li {
@@ -106,7 +120,11 @@ li input[type="checkbox"]:checked~label {
   text-decoration: line-through;
 }
 
-.delete-button, .edit-button {
+
+.delete-button, 
+.edit-button,
+.check-button, 
+.discard-button {
   position: absolute;
   background: none;
   border: none;
@@ -114,23 +132,39 @@ li input[type="checkbox"]:checked~label {
   cursor: pointer;
   font-size: 16px;
   padding: 4px;
+  width: 24px;
+  height: 24px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .delete-button {
-  right: 50px;
-  top: 52%;
-  transform: translateY(-50%);
+  right: 48px;
 }
+
+.edit-button {
+  right: 80px; 
+}
+
+/* .delete-button, .edit-button {
+  position: absolute;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+} */
+
 
 .delete-button:hover {
   color: #ff4444;
 }
 
-.edit-button {
-  right: 75px;
-  top: 52%;
-  transform: translateY(-50%)
-}
+
 
 .edit-button i:hover {
   color: rgb(60, 158, 255);
@@ -138,6 +172,9 @@ li input[type="checkbox"]:checked~label {
 }
 
 .check-button, .discard-button {
+  right:16px;
+  top: 52%;
+  transform: translateY(-50%);
   position: absolute;
   background: none;
   border: none;
@@ -149,15 +186,11 @@ li input[type="checkbox"]:checked~label {
 }
 
 .check-button {
-  right: 50px;
-  top: 52%;
-  transform: translateY(-50%);
+  right: 16px;
 }
 
 .discard-button {
-  right: 75px;
-  top: 52%;
-  transform: translateY(-50%);
+  right: 48px;
 }
 
 .check-button:hover {
@@ -169,10 +202,12 @@ li input[type="checkbox"]:checked~label {
 }
 
 .description-edit {
+  padding-right: 60px;
   border: 1px solid #ddd;
   padding: 4px;
-  width: calc(100% - 40px);
+  width: 100%;
   outline: none;
+  box-sizing: border-box;
 }
 
 #toast-container {
@@ -190,13 +225,25 @@ li input[type="checkbox"]:checked~label {
 .delToast {
   background-color: #333;
   color: white;
-  padding: 12px 20px;
+  padding: 12px 18px;
   border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   animation: slideIn 0.3s ease-out;
+  max-width: 350px;
+  white-space: nowrap;
+}
+
+.delToast span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.undo-button {
+  flex-shrink: 0; 
+  margin-left: auto;
 }
 
 @keyframes slideIn {
@@ -353,11 +400,12 @@ li input[type="checkbox"]:checked~label {
 }
 
 #clear-button {
-  position: fixed;
+  position: static;
+  font-size: 1.2rem;
+  font-weight: 2px;
+  padding: 0.5rem;
   top: 5%;
   right:5%;
-  font-weight: 2px;
-  font-size: 26px;
   border: none;
   background: none;
   color: white;
@@ -524,8 +572,33 @@ li input[type="checkbox"]:checked~label {
 }
 
 @media screen and (max-width: 600px) {
+  body, html {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  #header {
+    padding: 0.5rem;
+    height: 52px;
+  }
+
+  #header h1 {
+    font-size: 1.2rem;
+    max-width: 65%;
+  }
+
+  #clear-button {
+    font-size: 1rem;
+  }
+
+  ul {
+    padding-top: 50px; 
+  }
+
   li {
+    position: relative;
     padding: 20px 12px;
+    padding-right: 110px;
     font-size: 16px;
   }
 
@@ -538,10 +611,38 @@ li input[type="checkbox"]:checked~label {
   }
 
   .edit-button, .delete-button, .check-button, .discard-button {
-    font-size: 20px;
-    right: auto;
-    left: 85%;
-    transform: translateX(-50%);
+    font-size: 16px;
+    right: 10px;
+    left: auto;
+    transform: none;
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    transform: translateY(-40%);
+  }
+
+  
+  .edit-button {
+    right: 76px;
+  }
+
+  .delete-button {
+    right: 44px;
+  }
+
+  .check-button {
+    right: 16px;
+  }
+
+  .discard-button {
+    right: 56px;
+  }
+
+  li input[type="checkbox"] {
+    right: 16px;
+    width: 20px;
+    height: 20px;
+    z-index: 1;
   }
   .submit-button,
   .confirmation-buttons,
@@ -568,5 +669,18 @@ li input[type="checkbox"]:checked~label {
 
   .confirmation-text {
     font-size: 16px;
+  }
+
+  .delToast {
+    width: 95%;
+    max-width: 95%;
+    font-size: 13px;
+  }
+
+  
+  .undo-button {
+    padding: 3px 6px;
+    font-size: 11px;
+    margin-left: 8px;
   }
 }
