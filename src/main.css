@@ -149,17 +149,6 @@ li input[type="checkbox"]:checked~label {
   right: 80px; 
 }
 
-/* .delete-button, .edit-button {
-  position: absolute;
-  background: none;
-  border: none;
-  color: #999;
-  cursor: pointer;
-  font-size: 16px;
-  padding: 4px;
-} */
-
-
 .delete-button:hover {
   color: #ff4444;
 }
